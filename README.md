@@ -1,4 +1,4 @@
-# range-js
+# range.js
 
 This library provides a ES6 - ready lazy ranges.   
 Until ES6 is implemented, it is transpiled down to ES5.

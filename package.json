@@ -1,6 +1,6 @@
 {
-  "name": "Range",
-  "version": "1.0.0",
+  "name": "range-js",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "dependencies": {},
@@ -19,12 +19,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bash/Range"
+    "url": "https://github.com/bash/range.js"
   },
   "author": "Ruben Schmidmeister <ruby@fog.im>",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bash/Range/issues"
+    "url": "https://github.com/bash/range.js/issues"
   },
   "homepage": "https://rubys.ninja"
 }
