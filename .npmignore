@@ -1,0 +1,5 @@
+/dist/node/index.js
+/.jshintrc
+/src
+/gulpfile.js
+/.gitignore
