@@ -2,93 +2,20 @@
  * (c) 2015 Ruben Schmidmeister
  */
 
+import { RangeIterator } from './RangeIterator.js';
+import { getNumericValue } from './utils.js';
+
 /**
- * Returns the number value or the charCode of the first char.
  *
- * @param {string|Number} subject
+ * @param {Number, String} start
+ * @param {Number, String} end
+ * @param {Number} step
  */
-let getNumericValue = function(subject) {
-    if (typeof subject === 'string') {
-        return subject.charCodeAt(0);
-    } else {
-        return subject;
-    }
-};
-
-class RangeIterator {
-    /**
-     *
-     * @param {Range} range
-     */
-    constructor(range) {
-        /**
-         *
-         * @type {Range}
-         */
-        this.range = range;
-
-        /**
-         *
-         * @type {Number|String}
-         */
-        this.current = range.start;
-
-        /**
-         * The number of remaining iterations
-         *
-         * @type {number}
-         */
-        this.iterations = Math.floor((getNumericValue(range.end) - getNumericValue(range.start)) / range.step) + 1;
-    }
-
-    /**
-     *
-     * @returns {{done: boolean, value: *}}
-     */
-    next() {
-        var ret = { done: this.iterations === 0, value: this.current };
-
-        if (!ret.done) {
-            this.iterations -= 1;
-            this.current = this._getNext();
-        }
-
-        return ret;
-    }
-
-    /**
-     *
-     * @returns {string|number}
-     * @private
-     */
-    _getNext() {
-        if (typeof this.current === 'string') {
-            return this._getNextChar();
-        } else {
-            return this._getNextNumber();
-        }
-    }
-
-    /**
-     *
-     * @returns {number}
-     * @private
-     */
-    _getNextNumber() {
-        return this.current + this.range.step;
-    }
-
-    /**
-     *
-     * @returns {string}
-     * @private
-     */
-    _getNextChar() {
-        let numeric = getNumericValue(this.current) + this.range.step;
-
-        return String.fromCharCode(numeric);
-    }
+export function range(start, end, step = 1) {
+    return new Range(start, end, step);
 }
+
+export default range;
 
 export class Range {
     /**
@@ -98,10 +25,6 @@ export class Range {
      * @param {Number} step
      */
     constructor(start, end, step = 1) {
-        if (!Number.isInteger(step)) {
-            throw new TypeError('Step must be an integer');
-        }
-
         let numericStart = getNumericValue(start),
             numericEnd = getNumericValue(end);
 
@@ -127,6 +50,70 @@ export class Range {
          * @type {Number}
          */
         this.step = step;
+    }
+
+    /**
+     *
+     * @param {Number} step
+     */
+    set step(step) {
+        if (!Number.isInteger(step)) {
+            throw new TypeError('Step must be an integer');
+        }
+
+        this._step = step;
+        this._clear();
+    }
+
+    /**
+     *
+     * @returns {Number}
+     */
+    get step() {
+        return this._step;
+    }
+
+    /**
+     *
+     * @param {Number|String} start
+     */
+    set start(start) {
+        this._start = start;
+        this._clear();
+    }
+
+    /**
+     *
+     * @returns {Number|String}
+     */
+    get start() {
+        return this._start;
+    }
+
+    /**
+     *
+     * @param {Number|String} end
+     */
+    set end(end) {
+        this._end = end;
+        this._clear();
+    }
+
+    /**
+     *
+     * @returns {Number|String}
+     */
+    get end() {
+        return this._end;
+    }
+
+    /**
+     *
+     * @private
+     */
+    _clear() {
+        this._array = null;
+        this._set = null;
     }
 
     /**
@@ -159,7 +146,9 @@ export class Range {
      * @param {Object} thisArg
      */
     forEach(callbackFn, thisArg) {
-        for (let item of this) {
+        let target = this._set || this._array || this;
+
+        for (let item of target) {
             callbackFn.call(thisArg, item, item);
         }
     }
@@ -171,9 +160,9 @@ export class Range {
     count() {
         var count = 0;
 
-        for (let item of this) {
-            count += 1;
-        }
+        this.forEach(function () {
+            count++;
+        });
 
         return count;
     }
@@ -183,7 +172,11 @@ export class Range {
      * @returns {Array}
      */
     toArray() {
-        return [...this];
+        if (this._array !== null) {
+            return this._array;
+        }
+
+        return (this._array = [...this]);
     }
 
     /**
@@ -191,6 +184,10 @@ export class Range {
      * @returns {Set}
      */
     toSet() {
-        return new Set(this);
+        if (this._set !== null) {
+            return this._set;
+        }
+
+        return (this._set = new Set(this));
     }
 }

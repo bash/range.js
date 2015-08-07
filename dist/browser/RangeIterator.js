@@ -1,0 +1,9 @@
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+"use strict";function _classCallCheck(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(exports,"__esModule",{value:!0});var _createClass=function(){function e(e,t){for(var r=0;r<t.length;r++){var n=t[r];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}return function(t,r,n){return r&&e(t.prototype,r),n&&e(t,n),t}}(),_utilsJs=require("./utils.js"),RangeIterator=function(){function e(t){_classCallCheck(this,e),this.range=t,this.current=t.start,this.iterations=Math.floor((_utilsJs.getNumericValue(t.end)-_utilsJs.getNumericValue(t.start))/t.step)+1}return _createClass(e,[{key:"next",value:function(){var e={done:0===this.iterations,value:this.current};return e.done||(this.iterations-=1,this.current=this._getNext()),e}},{key:"_getNext",value:function(){return"string"==typeof this.current?this._getNextChar():this._getNextNumber()}},{key:"_getNextNumber",value:function(){return this.current+this.range.step}},{key:"_getNextChar",value:function(){var e=_utilsJs.getNumericValue(this.current)+this.range.step;return String.fromCharCode(e)}}]),e}();exports.RangeIterator=RangeIterator;
+
+
+},{"./utils.js":2}],2:[function(require,module,exports){
+"use strict";function getNumericValue(e){return"string"==typeof e?e.charCodeAt(0):e}Object.defineProperty(exports,"__esModule",{value:!0}),exports.getNumericValue=getNumericValue;
+
+
+},{}]},{},[1])
