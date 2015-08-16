@@ -10,9 +10,10 @@ import { getNumericValue } from './utils.js';
  * @param {Number, String} start
  * @param {Number, String} end
  * @param {Number} step
+ * @param {Number} limit
  */
-export function range(start, end, step = 1) {
-    return new Range(start, end, step);
+export function range(start, end, step = 1, limit = Infinity) {
+    return new Range(start, end, step, limit);
 }
 
 export default range;
@@ -23,8 +24,9 @@ export class Range {
      * @param {Number, String} start
      * @param {Number, String} end
      * @param {Number} step
+     * @param {Number} limit
      */
-    constructor(start, end, step = 1) {
+    constructor(start, end, step = 1, limit = Infinity) {
         let numericStart = getNumericValue(start),
             numericEnd = getNumericValue(end);
 
@@ -50,6 +52,49 @@ export class Range {
          * @type {Number}
          */
         this.step = step;
+
+        /**
+         *
+         * @type {Number}
+         */
+        this.limit = limit;
+    }
+
+    /**
+     *
+     * @param {number|string} start
+     * @param {number|string} end
+     * @param {number} step
+     * @private
+     */
+    _validateRange(start, end, step) {
+        start = getNumericValue(start);
+        end = getNumericValue(end);
+
+        // Prevent infinite loops
+        if (start > end !== step < 0) {
+            throw new Error('Impossible Range');
+        }
+    }
+
+    /**
+     *
+     * @param {Number} limit
+     */
+    set limit(limit) {
+        if (limit < 0 || (!Number.isInteger(limit) && Number.isFinite(limit))) {
+            throw new Error('the limit must be a positive integer or infinity');
+        }
+
+        this._limit = limit;
+    }
+
+    /**
+     *
+     * @returns {Number}
+     */
+    get limit() {
+        return this._limit;
     }
 
     /**
@@ -57,12 +102,13 @@ export class Range {
      * @param {Number} step
      */
     set step(step) {
-        if (!Number.isInteger(step)) {
-            throw new TypeError('Step must be an integer');
+        this._validateRange(this.start, this.end, step);
+
+        if (!Number.isFinite(step)) {
+            throw new Error('the step number must be finite');
         }
 
         this._step = step;
-        this._clear();
     }
 
     /**
@@ -75,16 +121,22 @@ export class Range {
 
     /**
      *
-     * @param {Number|String} start
+     * @param {number|string} start
      */
     set start(start) {
+
+        this._validateRange(start, this.end, this.step);
+
+        if (!Number.isFinite(getNumericValue(start))) {
+            throw new Error('only the end point may be infinite');
+        }
+
         this._start = start;
-        this._clear();
     }
 
     /**
      *
-     * @returns {Number|String}
+     * @returns {number|string}
      */
     get start() {
         return this._start;
@@ -92,28 +144,20 @@ export class Range {
 
     /**
      *
-     * @param {Number|String} end
+     * @param {number|string} end
      */
     set end(end) {
+        this._validateRange(this.start, end, this.step);
+
         this._end = end;
-        this._clear();
     }
 
     /**
      *
-     * @returns {Number|String}
+     * @returns {number|string}
      */
     get end() {
         return this._end;
-    }
-
-    /**
-     *
-     * @private
-     */
-    _clear() {
-        this._array = null;
-        this._set = null;
     }
 
     /**
@@ -172,11 +216,14 @@ export class Range {
      * @returns {Array}
      */
     toArray() {
-        if (this._array !== null) {
-            return this._array;
-        }
+        // Maybe use [...this] in the future
+        let array = [];
 
-        return (this._array = [...this]);
+        this.forEach(function (item) {
+            array.push(item);
+        });
+
+        return array;
     }
 
     /**
@@ -184,10 +231,6 @@ export class Range {
      * @returns {Set}
      */
     toSet() {
-        if (this._set !== null) {
-            return this._set;
-        }
-
-        return (this._set = new Set(this));
+        return new Set(this);
     }
 }

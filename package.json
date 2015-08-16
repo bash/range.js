@@ -1,6 +1,6 @@
 {
   "name": "range-js",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "ES6 - ready lazy ranges ",
   "main": "index.js",
   "dependencies": {},

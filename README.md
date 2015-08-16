@@ -54,3 +54,24 @@ alphabet.forEach(function(letter, i){
     console.assert(letter === i); // Consistent to Array.prototype.forEach
     console.log(letter);
 });
+```
+
+## Step
+You can specify a step number for the range.
+
+```js
+let range = new Range(1, 100, 5);
+
+console.log(range.toArray()); // => [1, 6, 11, 16, 21, 26, 31, 36, 41, 46, 51, 56, 61, 66, 71, 76, 81, 86, 91, 96]
+console.log(range.count()); // => 20
+```
+
+## Infinity + Limit
+The **end** of the range may be *Infinity* but only in combination with the **limit** (4th) parameter equal to a positive integer.
+
+```js
+let range = new Range(0, Infinity, 10000, 10);
+
+console.log(range.toArray()); // => [0, 10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000]
+console.log(range.count()); // => 10
+```

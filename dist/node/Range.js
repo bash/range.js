@@ -12,8 +12,6 @@ var _createClass = (function () { function defineProperties(target, props) { for
 
 exports.range = range;
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
 var _RangeIteratorJs = require('./RangeIterator.js');
@@ -25,12 +23,14 @@ var _utilsJs = require('./utils.js');
  * @param {Number, String} start
  * @param {Number, String} end
  * @param {Number} step
+ * @param {Number} limit
  */
 
 function range(start, end) {
     var step = arguments.length <= 2 || arguments[2] === undefined ? 1 : arguments[2];
+    var limit = arguments.length <= 3 || arguments[3] === undefined ? Infinity : arguments[3];
 
-    return new Range(start, end, step);
+    return new Range(start, end, step, limit);
 }
 
 exports['default'] = range;
@@ -41,10 +41,12 @@ var Range = (function () {
      * @param {Number, String} start
      * @param {Number, String} end
      * @param {Number} step
+     * @param {Number} limit
      */
 
     function Range(start, end) {
         var step = arguments.length <= 2 || arguments[2] === undefined ? 1 : arguments[2];
+        var limit = arguments.length <= 3 || arguments[3] === undefined ? Infinity : arguments[3];
 
         _classCallCheck(this, Range);
 
@@ -73,31 +75,45 @@ var Range = (function () {
          * @type {Number}
          */
         this.step = step;
+
+        /**
+         *
+         * @type {Number}
+         */
+        this.limit = limit;
     }
 
     /**
      *
-     * @param {Number} step
+     * @param {number|string} start
+     * @param {number|string} end
+     * @param {number} step
+     * @private
      */
 
     _createClass(Range, [{
-        key: '_clear',
+        key: '_validateRange',
+        value: function _validateRange(start, end, step) {
+            start = (0, _utilsJs.getNumericValue)(start);
+            end = (0, _utilsJs.getNumericValue)(end);
+
+            // Prevent infinite loops
+            if (start > end !== step < 0) {
+                throw new Error('Impossible Range');
+            }
+        }
 
         /**
          *
-         * @private
+         * @param {Number} limit
          */
-        value: function _clear() {
-            this._array = null;
-            this._set = null;
-        }
+    }, {
+        key: Symbol.iterator,
 
         /**
          *
          * @returns {RangeIterator}
          */
-    }, {
-        key: Symbol.iterator,
         value: function value() {
             return new _RangeIteratorJs.RangeIterator(this);
         }
@@ -181,11 +197,14 @@ var Range = (function () {
     }, {
         key: 'toArray',
         value: function toArray() {
-            if (this._array !== null) {
-                return this._array;
-            }
+            // Maybe use [...this] in the future
+            var array = [];
 
-            return this._array = [].concat(_toConsumableArray(this));
+            this.forEach(function (item) {
+                array.push(item);
+            });
+
+            return array;
         }
 
         /**
@@ -195,21 +214,40 @@ var Range = (function () {
     }, {
         key: 'toSet',
         value: function toSet() {
-            if (this._set !== null) {
-                return this._set;
+            return new Set(this);
+        }
+    }, {
+        key: 'limit',
+        set: function set(limit) {
+            if (limit < 0 || !Number.isInteger(limit) && Number.isFinite(limit)) {
+                throw new Error('the limit must be a positive integer or infinity');
             }
 
-            return this._set = new Set(this);
+            this._limit = limit;
+        },
+
+        /**
+         *
+         * @returns {Number}
+         */
+        get: function get() {
+            return this._limit;
         }
+
+        /**
+         *
+         * @param {Number} step
+         */
     }, {
         key: 'step',
         set: function set(step) {
-            if (!Number.isInteger(step)) {
-                throw new TypeError('Step must be an integer');
+            this._validateRange(this.start, this.end, step);
+
+            if (!Number.isFinite(step)) {
+                throw new Error('the step number must be finite');
             }
 
             this._step = step;
-            this._clear();
         },
 
         /**
@@ -222,18 +260,24 @@ var Range = (function () {
 
         /**
          *
-         * @param {Number|String} start
+         * @param {number|string} start
          */
     }, {
         key: 'start',
         set: function set(start) {
+
+            this._validateRange(start, this.end, this.step);
+
+            if (!Number.isFinite((0, _utilsJs.getNumericValue)(start))) {
+                throw new Error('only the end point may be infinite');
+            }
+
             this._start = start;
-            this._clear();
         },
 
         /**
          *
-         * @returns {Number|String}
+         * @returns {number|string}
          */
         get: function get() {
             return this._start;
@@ -241,18 +285,19 @@ var Range = (function () {
 
         /**
          *
-         * @param {Number|String} end
+         * @param {number|string} end
          */
     }, {
         key: 'end',
         set: function set(end) {
+            this._validateRange(this.start, end, this.step);
+
             this._end = end;
-            this._clear();
         },
 
         /**
          *
-         * @returns {Number|String}
+         * @returns {number|string}
          */
         get: function get() {
             return this._end;

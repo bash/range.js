@@ -28,6 +28,17 @@ export class RangeIterator {
          * @type {number}
          */
         this.iterations = Math.floor((getNumericValue(range.end) - getNumericValue(range.start)) / range.step) + 1;
+
+        /**
+         * The amount of iterations
+         *
+         * @type {number}
+         */
+        this.counter = 0;
+
+        if (this.iterations === Infinity && range.limit === Infinity) {
+            throw new Error('infinite loop detected');
+        }
     }
 
     /**
@@ -35,11 +46,15 @@ export class RangeIterator {
      * @returns {{done: boolean, value: *}}
      */
     next() {
-        var ret = {done: this.iterations === 0, value: this.current};
+        var ret = {
+            done: this.iterations === 0 || this.counter === this.range.limit,
+            value: this.current
+        };
 
         if (!ret.done) {
-            this.iterations -= 1;
             this.current = this._getNext();
+            this.counter++;
+            this.iterations--;
         }
 
         return ret;
