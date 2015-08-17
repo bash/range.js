@@ -58,23 +58,25 @@ var Range = (function () {
             step = -step;
         }
 
-        /**
-         *
-         * @type {Number|String}
-         */
-        this.start = start;
+        this._validateRange(start, end, step);
 
         /**
          *
          * @type {Number|String}
          */
-        this.end = end;
+        this._start = start;
+
+        /**
+         *
+         * @type {Number|String}
+         */
+        this._end = end;
 
         /**
          *
          * @type {Number}
          */
-        this.step = step;
+        this._step = step;
 
         /**
          *
