@@ -199,6 +199,10 @@ export class Range {
         }
     }
 
+    includes(item) {
+        return this.toArray().indexOf(item) !== -1;
+    }
+
     /**
      *
      * @returns {number}

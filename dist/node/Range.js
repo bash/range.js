@@ -175,6 +175,21 @@ var Range = (function () {
                 }
             }
         }
+    }, {
+        key: 'includes',
+        value: function includes(item) {
+            var numericItem = (0, _utilsJs.getNumericValue)(item);
+
+            if (numericItem > this.end) {
+                return false;
+            }
+
+            if (numericItem < this.start) {
+                return false;
+            }
+
+            return this.toArray().indexOf(item) !== -1;
+        }
 
         /**
          *
